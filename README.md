@@ -74,9 +74,7 @@ const svg = d3
 
 const aProjection = d3Composite
   .geoConicConformalSpain()
-  // Let's make the map bigger to fit in our resolution
   .scale(3300)
-  // Let's center the map
   .translate([500, 400]);
 
 const geoPath = d3.geoPath().projection(aProjection);
@@ -88,7 +86,6 @@ svg
   .enter()
   .append("path")
   .attr("class", "country")
-  // data loaded from json file
   .attr("d", geoPath as any);
 
 svg
@@ -101,3 +98,33 @@ svg
   .attr("cx", d => aProjection([d.long, d.lat])[0])
   .attr("cy", d => aProjection([d.long, d.lat])[1]);
   ```
+
+- The following function updates the map from initial cases to final cases:
+
+```typescript
+const updateCircles = (data: ResultEntry[]) => {
+    const circles = svg.selectAll("circle");
+    circles
+      .data(latLongCommunities)
+      .merge(circles as any)
+      .transition()
+      .duration(500)
+      .attr("r", d => calculateRadiusBasedOnAffectedCases(d.name, data));
+  };
+```
+
+- We create the buttons to move from one map to the other:
+
+```typescript
+document
+  .getElementById("Inicio")
+  .addEventListener("click", function handleResultsNow() {
+    updateCircles(statsIni);
+  });
+
+document
+  .getElementById("Final")
+  .addEventListener("click", function handleResultsInitial() {
+    updateCircles(statsLast);
+  });
+```
